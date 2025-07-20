@@ -1,67 +1,33 @@
+import React from "react";
 import type { Metadata } from "next";
-import { Roboto } from "next/font/google";
-import "./globals.css";
-import TanStackProvider from "@/components/TanStackProvider/TanStackProvider";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
-import { Toaster } from "react-hot-toast";
+import TanStackProvider from "@/components/TanStackProvider/TanStackProvider";
+import AuthProvider from "@/components/AuthProvider/AuthProvider";
 
-const roboto = Roboto({
-  subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-  variable: "--font-roboto",
-  display: "swap",
-});
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "NoteHub",
-  description:
-    "Notehub is a simple and intuitive web application for creating, editing, and organizing notes, with support for search and tag-based filtering.",
-  openGraph: {
-    title: "NoteHub",
-    description: "Take and organize notes easily with tags and instant search.",
-    url: "https://08-zustand-beta.vercel.app/",
-    images: [
-      {
-        url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg",
-        width: 1200,
-        height: 630,
-        alt: "notehub image",
-      },
-    ],
-    type: "article",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "NoteHub",
-    description: "Take and organize notes easily with tags and instant search.",
-    images: [
-      {
-        url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg",
-        width: 1200,
-        height: 630,
-        alt: "notehub image",
-      },
-    ],
-  },
+  description: "NoteHub Application",
 };
 
-export default function RootLayout({
-  children,
-  modal,
-}: Readonly<{
+interface LayoutProps {
   children: React.ReactNode;
-  modal: React.ReactNode;
-}>) {
+  modal?: React.ReactNode;
+}
+
+export default function RootLayout({ children, modal }: LayoutProps) {
   return (
     <html lang="en">
-      <body className={`${roboto.variable}`}>
+      <body>
         <TanStackProvider>
-          <Header />
-          {children}
-          {modal}
-          <Footer />
-          <Toaster />
+          <AuthProvider>
+            <Header />
+            {children}
+            {modal}
+            <Footer />
+          </AuthProvider>
         </TanStackProvider>
       </body>
     </html>

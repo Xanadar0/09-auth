@@ -1,27 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { logout as logoutUser } from "@/lib/api/clientApi";
-import { useAuthStore } from "@/lib/store/authStore";
 import css from "./AuthNavigation.module.css";
+import { useAuthUser } from "@/lib/store/authStore";
+import { useRouter } from "next/navigation";
+import { logout } from "@/lib/api/clientApi";
 
 export default function AuthNavigation() {
+  const isAuthenticated = useAuthUser((state) => state.isAuthenticated);
+  const user = useAuthUser((state) => state.user);
+  const clearIsAuthenticated = useAuthUser(
+    (state) => state.clearIsAuthenticated
+  );
   const router = useRouter();
-  const { isAuthenticated, user, clearIsAuthenticated } = useAuthStore();
 
-  const handleLogout = async () => {
-    try {
-      await logoutUser();
-      clearIsAuthenticated();
-      router.push("/sign-in");
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
+  async function handleLogout() {
+    await logout();
+    clearIsAuthenticated();
+    router.push("/sign-in");
+  }
 
   return (
-    <ul className={css.navigationList}>
+    <>
       {isAuthenticated ? (
         <>
           <li className={css.navigationItem}>
@@ -33,10 +33,9 @@ export default function AuthNavigation() {
               Profile
             </Link>
           </li>
-
           <li className={css.navigationItem}>
-            <p className={css.userEmail}>{user?.email || "User email"}</p>
-            <button onClick={handleLogout} className={css.logoutButton}>
+            <p className={css.userEmail}>{user?.email}</p>
+            <button className={css.logoutButton} onClick={handleLogout}>
               Logout
             </button>
           </li>
@@ -52,6 +51,7 @@ export default function AuthNavigation() {
               Login
             </Link>
           </li>
+
           <li className={css.navigationItem}>
             <Link
               href="/sign-up"
@@ -63,6 +63,6 @@ export default function AuthNavigation() {
           </li>
         </>
       )}
-    </ul>
+    </>
   );
 }

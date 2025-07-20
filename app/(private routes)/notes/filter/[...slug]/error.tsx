@@ -1,5 +1,16 @@
 "use client";
 
-export default function NotesError() {
-  return <p>Something went wrong while loading notes by tag.</p>;
+import css from "./error.module.css";
+
+interface ErrorMessageProps {
+  error: Error;
+}
+
+export default function ErrorMessage({ error }: ErrorMessageProps) {
+  return (
+    <div className={css.error}>
+      <strong>⚠️ Error</strong>
+      <p>{error.message}</p>
+    </div>
+  );
 }

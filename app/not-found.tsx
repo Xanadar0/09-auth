@@ -1,20 +1,41 @@
-import type { Metadata } from "next";
+import ErrorPage from "@/components/ErrorPage/ErrorPage";
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Сторінку не знайдено — NoteHub",
-  description: "Ця сторінка не існує. Можливо, ви ввели неправильну адресу.",
+  title: "404 — Notehub",
+  description:
+    "Looks like you've reached a dead end. Let's get you back to your notes.",
   openGraph: {
-    title: "Сторінку не знайдено — NoteHub",
-    description: "Ця сторінка не існує. Можливо, ви ввели неправильну адресу.",
-    url: "https://your-site-url.com/not-found",
+    title: "404 — Notehub",
+    description:
+      "Looks like you've reached a dead end. Let's get you back to your notes.",
+    url: "https://08-zustand-iota-tan.vercel.app//404",
     images: [
       {
-        url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg",
+        url: "https://colorlib.com/wp/wp-content/uploads/sites/2/404-error-page-templates.jpg",
+        width: 1200,
+        height: 630,
+        alt: "not found 404",
+      },
+    ],
+    type: "article",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "404 — Notehub",
+    description:
+      "Looks like you've reached a dead end. Let's get you back to your notes.",
+    images: [
+      {
+        url: "https://colorlib.com/wp/wp-content/uploads/sites/2/404-error-page-templates.jpg",
+        width: 1200,
+        height: 630,
+        alt: "notehub image",
       },
     ],
   },
 };
 
 export default function NotFoundPage() {
-  return <h1>Сторінку не знайдено</h1>;
+  return <ErrorPage />;
 }

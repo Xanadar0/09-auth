@@ -1,20 +1,7 @@
-import Link from "next/link";
-import styles from "./SidebarNotes.module.css";
+import SidebarNotes from "@/components/SidebarNotes/SidebarNotes";
 
-const tags = ["All", "Todo", "Work", "Personal", "Meeting", "Shopping"];
+const arrayTags: string[] = ["Work", "Personal", "Meeting", "Shopping", "Todo"];
 
-export default function DefaultSidebar() {
-  return (
-    <nav>
-      <ul className={styles.menuList}>
-        {tags.map((tag) => (
-          <li key={tag} className={styles.menuItem}>
-            <Link href={`/notes/filter/${tag}`} className={styles.menuLink}>
-              {tag}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  );
+export default function Sidebar() {
+  return <SidebarNotes tags={arrayTags} />;
 }

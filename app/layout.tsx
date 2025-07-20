@@ -1,26 +1,62 @@
-import React from "react";
 import type { Metadata } from "next";
+import { Roboto } from "next/font/google";
+import "./globals.css";
+import TanStackProvider from "@/components/TanStackProvider/TanStackProvider";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
-import TanStackProvider from "@/components/TanStackProvider/TanStackProvider";
+import { Toaster } from "react-hot-toast";
 import AuthProvider from "@/components/AuthProvider/AuthProvider";
 
-import "./globals.css";
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-roboto",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "NoteHub",
-  description: "NoteHub Application",
+  description:
+    "Notehub is a simple and intuitive web application for creating, editing, and organizing notes, with support for search and tag-based filtering.",
+  openGraph: {
+    title: "NoteHub",
+    description: "Take and organize notes easily with tags and instant search.",
+    url: "https://08-zustand-iota-tan.vercel.app/",
+    images: [
+      {
+        url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg",
+        width: 1200,
+        height: 630,
+        alt: "notehub image",
+      },
+    ],
+    type: "article",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "NoteHub",
+    description: "Take and organize notes easily with tags and instant search.",
+    images: [
+      {
+        url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg",
+        width: 1200,
+        height: 630,
+        alt: "notehub image",
+      },
+    ],
+  },
 };
 
-interface LayoutProps {
+export default function RootLayout({
+  children,
+  modal,
+}: Readonly<{
   children: React.ReactNode;
-  modal?: React.ReactNode;
-}
-
-export default function RootLayout({ children, modal }: LayoutProps) {
+  modal: React.ReactNode;
+}>) {
   return (
     <html lang="en">
-      <body>
+      <body className={`${roboto.variable}`}>
         <TanStackProvider>
           <AuthProvider>
             <Header />
@@ -28,6 +64,7 @@ export default function RootLayout({ children, modal }: LayoutProps) {
             {modal}
             <Footer />
           </AuthProvider>
+          <Toaster />
         </TanStackProvider>
       </body>
     </html>

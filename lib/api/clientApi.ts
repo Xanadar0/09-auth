@@ -1,73 +1,134 @@
-import { nextServer } from './api';
-import type { Note, NotesResponse, NewNote } from '@/types/note';
-import type { User, UserRequest, CheckSessionResponse } from '@/types/user';
-import { AxiosError } from 'axios';
+import type {
+  CreateNoteValues,
+  FetchNotesValues,
+  Note,
+} from "../../types/note";
+import { toast } from "react-hot-toast";
+import { AuthRequest, LogInUser, User } from "@/types/user";
+import { nextServer } from "./api";
 
-export const fetchNotes = async (
-  searchText: string,
-  page = 1,
-  perPage = 10,
-  tag?: string
-): Promise<NotesResponse> => {
-  const res = await nextServer.get<NotesResponse>('/notes', {
-    params: {
-      ...(searchText && { search: searchText }),
+export interface ParamsTypes {
+  page: number;
+  perPage: number;
+  search?: string;
+  tag?: string;
+}
+
+export interface UpdateMeRequest {
+  username: string;
+}
+
+export async function fetchNotes(
+  search: string,
+  page: number,
+  tag: string | undefined
+): Promise<FetchNotesValues | undefined> {
+  try {
+    const perPage = 12;
+    const params: ParamsTypes = {
+      tag,
       page,
       perPage,
-      ...(tag && tag !== 'All' && { tag }),
-    },
-  });
-  return res.data;
-};
-
-export const fetchNoteById = async (id: string): Promise<Note> => {
-  const res = await nextServer.get<Note>(`/notes/${id}`);
-  return res.data;
-};
-
-export const createNote = async (note: NewNote): Promise<Note> => {
-  const res = await nextServer.post<Note>('/notes', note);
-  return res.data;
-};
-
-export const deleteNote = async (id: string): Promise<Note> => {
-  const res = await nextServer.delete<Note>(`/notes/${id}`);
-  return res.data;
-};
-
-export const register = async (data: UserRequest): Promise<User> => {
-  const res = await nextServer.post<User>('/auth/register', data);
-  return res.data;
-};
-
-export const login = async (data: UserRequest): Promise<User> => {
-  const res = await nextServer.post<User>('/auth/login', data);
-  return res.data;
-};
-
-export const logout = async (): Promise<void> => {
-  await nextServer.post('/auth/logout');
-};
-
-export const checkSession = async (): Promise<{ success: boolean; message: string }> => {
-  try {
-    const res = await nextServer.get<CheckSessionResponse>('/auth/session');
-    return { success: res.status === 200, message: res.data.message };
-  } catch (error) {
-    const err = error as AxiosError<{ message: string }>;
-    return {
-      success: false,
-      message: err.response?.data.message ?? 'Session check failed',
     };
+
+    if (search?.trim()) {
+      params.search = search;
+    }
+    if (tag?.trim()) {
+      params.tag = tag;
+    }
+
+    const res = await nextServer.get<FetchNotesValues>("/notes", {
+      params,
+    });
+    return res.data;
+  } catch (error) {
+    toast.error(error instanceof Error ? error.message : String(error));
+    throw error;
   }
-};
+}
 
-export const getMe = async (): Promise<User> => {
-  const res = await nextServer.get<User>('/users/me');
-  return res.data;
-};
+export async function createNote({
+  title,
+  content,
+  tag,
+}: CreateNoteValues): Promise<Note | undefined> {
+  try {
+    const params: CreateNoteValues = {
+      title,
+      content,
+      tag,
+    };
 
-export const updateUser = async (userData: { username: string }): Promise<User> => {
-  const res = await nextServer.patch<User>('/users/me', userData);
-  return res.data;
-};
+    const res = await nextServer.post<Note>("/notes", params);
+    return res.data;
+  } catch (error) {
+    toast.error(error instanceof Error ? error.message : String(error));
+  }
+}
+
+export async function deleteNote(id: string): Promise<Note | undefined> {
+  try {
+    const res = await nextServer.delete<Note>(`/notes/${id}`);
+    return res.data;
+  } catch (error) {
+    toast.error(error instanceof Error ? error.message : String(error));
+  }
+}
+
+export async function fetchNoteById(id: string): Promise<Note | undefined> {
+  try {
+    const res = await nextServer.get<Note>(`/notes/${id}`);
+    return res.data;
+  } catch (error) {
+    toast.error(error instanceof Error ? error.message : String(error));
+    throw error;
+  }
+}
+
+export async function register(data: AuthRequest) {
+  const response = await nextServer.post<User>("/auth/register", data);
+  return response.data;
+}
+
+export async function login(data: AuthRequest) {
+  const response = await nextServer.post<LogInUser>("/auth/login", data);
+  return response.data;
+}
+
+export async function logout() {
+  try {
+    await nextServer.post("/auth/logout");
+  } catch (error) {
+    toast.error(error instanceof Error ? error.message : String(error));
+    throw error;
+  }
+}
+
+export async function session() {
+  try {
+    await nextServer.get("/auth/session");
+  } catch (error) {
+    toast.error(error instanceof Error ? error.message : String(error));
+    throw error;
+  }
+}
+
+export async function getMe() {
+  try {
+    const res = await nextServer.get<LogInUser>("/users/me");
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function updateMe({ username }: UpdateMeRequest) {
+  try {
+    const res = await nextServer.patch<LogInUser>("/users/me", { username });
+    return res.data;
+  } catch (error) {
+    toast.error(error instanceof Error ? error.message : String(error));
+    throw error;
+  }
+}

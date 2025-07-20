@@ -1,47 +1,21 @@
-export type NoteTag = "Todo" | "Work" | "Personal" | "Meeting" | "Shopping";
-
-export type FetchNotesResponse = {
-  notes: Note[];
-  total: number;
-  totalPages: number;
-  tag: string;
-};
-
-export type NewNoteData = {
-  title: string;
-  content: string;
-  tag: NoteTag;
-};
-
-
-export type Category = {
-  id: string;
-  name: string;
-};
-
-export interface SessionResponseData {
-  valid: boolean;
-}
-
-
 export interface Note {
   id: string;
   title: string;
   content: string;
+  tag: Tag;
   createdAt: string;
   updatedAt: string;
-  tag: string;
 }
 
-export interface NewNote {
+export interface CreateNoteValues {
   title: string;
-  content: string;
-  tag: string;
+  content?: string;
+  tag: Tag;
 }
 
-export interface NotesResponse {
+export type Tag = "Work" | "Personal" | "Meeting" | "Shopping" | "Todo";
+
+export interface FetchNotesValues {
   notes: Note[];
-  page: number;
   totalPages: number;
-  tag: string;
 }

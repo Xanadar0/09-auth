@@ -1,25 +1,25 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import css from "./SignInPage.module.css";
-import { useAuthStore } from "@/lib/store/authStore";
 import { useState } from "react";
-import { UserRequest } from "@/types/user";
+import css from "./SignInPage.module.css";
+import { AuthRequest } from "@/types/user";
 import { login } from "@/lib/api/clientApi";
+import { useAuthUser } from "@/lib/store/authStore";
+import { useRouter } from "next/navigation";
 
-const SignInPage = () => {
-  const router = useRouter();
+export default function SignInPage() {
   const [error, setError] = useState("");
-  const setUser = useAuthStore((state) => state.setUser);
+  const setUser = useAuthUser((state) => state.setUser);
+  const router = useRouter();
 
-  const handleSubmit = async (formData: FormData) => {
-    const values: UserRequest = {
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
+  async function handleSubmit(formData: FormData) {
+    const formValues = Object.fromEntries(formData);
+    const loginData: AuthRequest = {
+      email: formValues.email.toString(),
+      password: formValues.password.toString(),
     };
-
     try {
-      const res = await login(values);
+      const res = await login(loginData);
       if (res) {
         setUser(res);
         router.push("/profile");
@@ -27,48 +27,48 @@ const SignInPage = () => {
         setError("Invalid email or password");
       }
     } catch (error) {
-      console.error("Registration error:", error);
-      setError("Something went wrong. Try again.");
+      console.error(error);
+      setError("Invalid email or password");
     }
-  };
+  }
 
   return (
-    <main className={css.mainContent}>
-      <form className={css.form} action={handleSubmit}>
-        <h1 className={css.formTitle}>Sign in</h1>
+    <>
+      <main className={css.mainContent}>
+        <form className={css.form} action={handleSubmit}>
+          <h1 className={css.formTitle}>Sign in</h1>
 
-        <div className={css.formGroup}>
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            name="email"
-            className={css.input}
-            required
-          />
-        </div>
+          <div className={css.formGroup}>
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              name="email"
+              className={css.input}
+              required
+            />
+          </div>
 
-        <div className={css.formGroup}>
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            name="password"
-            className={css.input}
-            required
-          />
-        </div>
+          <div className={css.formGroup}>
+            <label htmlFor="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              name="password"
+              className={css.input}
+              required
+            />
+          </div>
 
-        <div className={css.actions}>
-          <button type="submit" className={css.submitButton}>
-            Log in
-          </button>
-        </div>
+          <div className={css.actions}>
+            <button type="submit" className={css.submitButton}>
+              Log in
+            </button>
+          </div>
 
-        {error && <p className={css.error}>{error}</p>}
-      </form>
-    </main>
+          {error && <p className={css.error}>{error}</p>}
+        </form>
+      </main>
+    </>
   );
-};
-
-export default SignInPage;
+}

@@ -1,9 +1,7 @@
-"use client";
-
-import AuthNavigation from "../AuthNavigation/AuthNavigation";
 import Link from "next/link";
 import css from "./Header.module.css";
-import TagsMenu from "../../components/TagsMenu/TagsMenu";
+import TagsMenu from "../TagsMenu/TagsMenu";
+import AuthNavigation from "../AuthNavigation/AuthNavigation";
 
 export default function Header() {
   return (

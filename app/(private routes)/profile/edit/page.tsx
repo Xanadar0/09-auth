@@ -1,75 +1,93 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import { getUserFromServer } from "@/lib/api/serverApi";
-import css from "./ProfilePage.module.css";
+"use client";
+
+import React, { useEffect, useState } from "react";
+import css from "./EditProfilePage.module.css";
+import { getMe, updateMe } from "@/lib/api/clientApi";
 import Image from "next/image";
-import { isAxiosError } from "axios";
+import { useRouter } from "next/navigation";
+import { useAuthUser } from "@/lib/store/authStore";
 
-export const metadata: Metadata = {
-  title: "Profile — NoteHub",
-  description: "User profile page in NoteHub app",
-};
+export default function EditProfilePage() {
+  const router = useRouter();
 
-export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [userImage, setUserImage] = useState("");
 
-export default async function ProfilePage() {
-  try {
-    const user = await getUserFromServer();
+  const [error, setError] = useState("");
 
-    return (
-      <main className={css.mainContent}>
-        <div className={css.profileCard}>
-          <div className={css.header}>
-            <h1 className={css.formTitle}>Profile Page</h1>
-            <Link href="/profile/edit" className={css.editProfileButton}>
-              Edit Profile
-            </Link>
-          </div>
+  const setUser = useAuthUser((state) => state.setUser);
 
-          <div className={css.avatarWrapper}>
-            <Image
-              src={user.avatar || "/default-avatar.png"}
-              alt="User Avatar"
-              width={120}
-              height={120}
-              className={css.avatar}
+  useEffect(() => {
+    async function fetchMe() {
+      await getMe().then((user) => {
+        setUserName(user.username);
+        setUserEmail(user.email);
+        setUserImage(user.avatar ?? "");
+      });
+    }
+    fetchMe();
+  }, []);
+
+  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setUserName(event.target.value);
+  }
+
+  async function handleSave(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    try {
+      const res = await updateMe({ username: userName });
+      setUser(res);
+      router.push("/profile");
+    } catch (error) {
+      setError(String(error));
+    }
+  }
+
+  return (
+    <main className={css.mainContent}>
+      <div className={css.profileCard}>
+        <h1 className={css.formTitle}>Edit Profile</h1>
+
+        <Image
+          src={userImage}
+          alt="User Avatar"
+          width={120}
+          height={120}
+          className={css.avatar}
+        />
+
+        <form className={css.profileInfo} onSubmit={handleSave}>
+          <div className={css.usernameWrapper}>
+            <label htmlFor="username">Username:</label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              className={css.input}
+              value={userName}
+              onChange={handleChange}
             />
           </div>
 
-          <div className={css.profileInfo}>
-            <p>Username: {user.username}</p>
-            <p>Email: {user.email}</p>
-          </div>
-        </div>
-      </main>
-    );
-  } catch (error) {
-    if (isAxiosError(error) && error.response?.status === 401) {
-      return (
-        <main className={css.mainContent}>
-          <div className={css.profileCard}>
-            <h1 className={css.formTitle}>Not Authorized</h1>
-            <p>Please log in to view this page.</p>
-            <Link href="/sign-in" className={css.editProfileButton}>
-              Go to Login
-            </Link>
-          </div>
-        </main>
-      );
-    }
+          <p>Email: {userEmail}</p>
 
-    if (process.env.NODE_ENV === "development") {
-      console.error("Failed to load user:", error);
-    }
+          {error && <p className={css.error}>{error}</p>}
 
-    return (
-      <main className={css.mainContent}>
-        <div className={css.profileCard}>
-          <h1 className={css.formTitle}>Error</h1>
-          <p>Something went wrong. Please try again later.</p>
-        </div>
-      </main>
-    );
-  }
+          <div className={css.actions}>
+            <button type="submit" className={css.saveButton}>
+              Save
+            </button>
+            <button
+              type="button"
+              className={css.cancelButton}
+              onClick={router.back}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
+  );
 }

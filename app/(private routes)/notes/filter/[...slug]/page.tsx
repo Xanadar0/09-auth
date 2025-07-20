@@ -1,55 +1,63 @@
 import NotesClient from "./Notes.client";
 import { Metadata } from "next";
-import { fetchNotesServer } from "@/lib/api/serverApi";
+import { fetchServerNotes } from "@/lib/api/serverApi";
 
-interface Props {
-  params: { slug: string[] }; 
+interface NotesProps {
+  params: Promise<{ slug: string[] }>;
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = params;
-  const category = slug[0];
-
+export async function generateMetadata({
+  params,
+}: NotesProps): Promise<Metadata> {
+  const { slug } = await params;
+  const tag = slug[0] === "all" ? undefined : slug[0];
   return {
-    title: `Category: ${category}`,
-    description: `View all notes filtered by category: ${category}.`,
+    title: `Notes: ${tag ? `${tag}` : "all"}`,
+    description: `Note: ${tag || "all"} — created in Notehub.`,
     openGraph: {
-      title: `Notes filtered by: ${category}`,
-      description: `Browse all notes in the "${category}" category.`,
-      url: `https://09-auth-ruddy-nine.vercel.app/notes/filter/${slug.join(
-        "/"
-      )}`,
-      siteName: "NoteHub",
+      title: `Notes: ${tag ? `${tag}` : "all"}`,
+      description: `Note: ${tag || "all"} — created in Notehub.`,
+      url: `https://09-auth-xi.vercel.app/notes/filter/${slug.join("/")}`,
       images: [
         {
-          url: "https://placehold.co/1200x630",
+          url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg",
           width: 1200,
           height: 630,
-          alt: `${category}`,
+          alt: "notehub image",
         },
       ],
-      type: "article",
     },
     twitter: {
       card: "summary_large_image",
-      title: `Notes filtered by: ${category}`,
-      description: `Browse all notes in the "${category}" category.`,
-      images: ["https://ac.goit.global/fullstack/react/og-meta.jpg"],
+      title: `Notes: ${tag ? `${tag}` : "all"}`,
+      description: `Note: ${tag || "all"} — created in Notehub.`,
+      images: [
+        {
+          url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg",
+          width: 1200,
+          height: 630,
+          alt: "notehub image",
+        },
+      ],
     },
   };
 }
 
-const NotesByCategory = async ({ params }: Props) => {
-  const { slug } = params;
-  const category = slug[0]?.toLowerCase() === "all" ? undefined : slug[0];
+export const revalidate = 60;
 
-  const initialData = await fetchNotesServer("", 1, 10, category); // ✅ куки додаються в serverApi
+export default async function Notes({ params }: NotesProps) {
+  const initialQuery = "";
+  const initialPage = 1;
+  const { slug } = await params;
+  const tag = slug[0] === "all" ? undefined : slug[0];
+  const data = await fetchServerNotes(initialQuery, initialPage, tag);
 
   return (
-    <div>
-      <NotesClient initialData={initialData} activeTag={category ?? "All"} />
-    </div>
+    <NotesClient
+      initialQuery={initialQuery}
+      initialPage={initialPage}
+      initialTag={tag}
+      initialData={data}
+    />
   );
-};
-
-export default NotesByCategory;
+}

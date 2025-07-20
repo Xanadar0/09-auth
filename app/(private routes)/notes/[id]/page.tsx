@@ -29,17 +29,3 @@ export async function generateMetadata({
     },
   };
 }
-export default async function NotePage({ params }: { params: { id: string } }) {
-  const note: Note | null = await fetchNoteById(params.id);
-
-  if (!note) {
-    return <div>Нотатку не знайдено</div>;
-  }
-
-  return (
-    <div>
-      <h1>{note.title}</h1>
-      <p>{note.content}</p>
-    </div>
-  );
-}

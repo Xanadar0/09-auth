@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getUserFromServer } from "@/lib/api/serverApi";
-import css from "./profile.module.css";
+import css from "./profilePage.module.css";
 import Image from "next/image";
 import { isAxiosError } from "axios";
 
